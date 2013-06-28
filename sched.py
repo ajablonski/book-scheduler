@@ -60,14 +60,12 @@ class BookSchedule:
 			self._start = start
 			self._end = end
 			self._days = (self._end - self._start).days + 1
-
 		self._stop_file_path = break_file_loc
 		self.__read_stop_points()
 		self._pages = self._stop_points[-1]
 		self._pages_per_day = int(math.ceil(float(self._pages) / self._days))
 		self.__make_dict()
 		self.__make_schedule()
-		
 
 	def __read_stop_points(self):
 		if self._stop_points == []:
@@ -86,13 +84,10 @@ class BookSchedule:
 
 	def __make_schedule(self, current_page = -1, dateIn = date(1, 1, 1)):
 		self.schedule = []
-
 		if current_page == -1:
 			current_page = self._pages_per_day  
-		
 		if dateIn == date(1, 1, 1):
 			dateIn = self._start
-		
 		while current_page < self._pages:
 			current_page = self._stop_dict[current_page]
 			self.schedule.append((dateIn, current_page))
@@ -105,8 +100,7 @@ class BookSchedule:
 	def print_schedule(self):
 		for pair in self.schedule:
 			print "Date: {} \t\t Page {}".format(pair[0].strftime('%b %d'), pair[1])
-				
-				
+						
 	def write_schedule_to_file(self, filename, cols=1):
 		with open(filename, 'w') as out:
 			for i in range(cols):
@@ -123,13 +117,11 @@ class BookSchedule:
 						pair = self.schedule[index]
 						out.write("|{:13} | {:4} | ".format(pair[0].strftime(' %B %d'), pair[1]))
 				out.write("\n")
-
-				
+	
 	def pickle_to_file(self, filename):
 		out_file = open(filename, 'w')
 		pickle.dump(self, out_file)
 		out_file.close()
-
 
 	def update_schedule(self, current_page, date=date.today()):
 		self.__make_schedule(current_page, date)
@@ -142,13 +134,3 @@ def get_current_progress(title):
 	search.set_book(title)
 	search.feed(html_string)
 	return (search.current_page, search.max_page)
-	
-	
-def get_arg_with_flag(flag):
-	if sys.argv.count(flag) == 1:
-		i = sys.argv.index(flag) + 1
-		return sys.argv[i]
-	else:
-		return 0
-
-
