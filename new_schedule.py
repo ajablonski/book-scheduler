@@ -1,52 +1,32 @@
 from sched import *
 import sys
 import pickle
+import argparse
 
 STOP_DEFAULT_NAME = '\stop.dat'
 OUTPUT_DEFAULT_NAME = 'a.out'
-
-# Arguments: title, stop_folder, end MM/DD/YYYY, start MM/DD/YYYY (optional), 
 		
-		
-def display_help():
-	print "Incorrect input"
-	
+parser = argparse.ArgumentParser('Create new schedule for book')
 
-# Check for output variable
-start = get_arg_with_flag('-s')
-end = get_arg_with_flag('-e')
-title = get_arg_with_flag('-t')
-output_file = get_arg_with_flag('-o')
-output_dir = get_arg_with_flag('-d')
-stop_file = get_arg_with_flag('-p')
-columns = int(get_arg_with_flag('-c'))
+def slash_date(str):
+	return datetime.strptime(str, "%m/%d/%Y").date()
 
+parser.add_argument('-s', '--start', default=date.today(), type=slash_date,
+	help = 'Start date, MM/DD/YY')
+parser.add_argument('-e', '--end', required=True, type=slash_date,
+	help = 'End date, MM/DD/YY')
+parser.add_argument('-t', '--title',
+	help = 'Title of book')
+parser.add_argument('-o', '--output-file', type=os.path.normpath, default=OUTPUT_DEFAULT_NAME,
+	help = 'Output file name')
+parser.add_argument('-d', '--output-dir', default=os.getcwd() + '\\',
+	help = 'Output file dir')
+parser.add_argument('-p', '--stop-file', type=os.path.normpath, default=STOP_DEFAULT_NAME, required=True,
+	help = 'Stop file location')
+parser.add_argument('-c', '--columns', type=int, default=1,
+	help = 'Columns')
 
-if start != 0:
-	start = datetime.strptime(start, '%m/%d/%Y').date()
-else:
-	start = date.today()
-
-if end != 0:
-	end = datetime.strptime(end, '%m/%d/%Y').date()
-else:
-	display_help()
-	
-if output_file == 0:
-	output_file = OUTPUT_DEFAULT_NAME
-	
-if output_dir == 0:
-	output_dir = os.getcwd() + '\\'
-	
-if stop_file == 0:
-	stop_file = STOP_DEFAULT_NAME
-stop_file = output_dir + stop_file
-
-if columns == 0:
-	columns = 1
-
-book = BookSchedule(stop_file, start, end)
-
-book.pickle_to_file(output_dir + 'pickle.dat')
-
-book.write_schedule_to_file(output_dir + output_file, columns)
+args = parser.parse_args(sys.argv[1:])
+book = BookSchedule(args.stop_file, args.start, args.end)
+book.pickle_to_file(args.output_dir + 'pickle.dat')
+book.write_schedule_to_file(args.output_file, args.columns)

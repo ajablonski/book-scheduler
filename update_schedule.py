@@ -1,35 +1,30 @@
 from sched import *
 import pickle
 import sys
+import argparse
 
-# Arguments: data file, title
+parser = argparse.ArgumentParser(description = 'Update existing schedule for book')
 
-current_page = int(get_arg_with_flag('-p'))
-data_file_name = get_arg_with_flag('-i')
-data_file_dir = get_arg_with_flag('-d')
-title = get_arg_with_flag('-t')
-columns = int(get_arg_with_flag('-c'))
+parser.add_argument('-i', '--df-name', default = 'pickle.dat', help = 'data file name')
+parser.add_argument('-d', '--df-dir', default = os.getcwd() + '\\', help = 'data file directory')
+parser.add_argument('-t', '--title', default = '', help = 'book title')
+parser.add_argument('-c', '--columns', default = 0, type=int,
+	help='number of columns to show')
+parser.add_argument('-p', '--page', default = 0, type=int, help='current page of book')
 
-if data_file_dir == 0:
-	data_file_dir = os.getcwd() + '\\'
+args = parser.parse_args(sys.argv)
 
-if current_page == 0:
-	current_page = get_current_progress(title)[0]
-	
-if data_file_name == 0:
-	data_file_name = 'pickle.dat'
-	
-if columns == 0:
-	columns = 1
+if args.page == 0:
+	args.page = get_current_progress(args.title)[0]
 
-with open(data_file_dir + data_file_name, 'r') as data_file:
+with open(args.df_dir + args.df_name, 'r') as data_file:
 	bookPart = pickle.load(data_file)
 
 book = BookSchedule(bookPart._stop_file_path, bookPart._start, bookPart._end)
 
 book.update_schedule(current_page)
 
-book.write_schedule_to_file(data_file_dir + '/' + date.today().isoformat() + '.txt', columns)
+book.write_schedule_to_file(args.df_dir  + '/' + date.today().isoformat() + '.txt', args.columns)
 
-with open(data_file_dir + data_file_name, 'w') as data_file:
+with open(args.df_dir + args.df_name, 'w') as data_file:
 	pickle.dump(book, data_file)
